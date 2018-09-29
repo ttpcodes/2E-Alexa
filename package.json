@@ -1,0 +1,17 @@
+{
+  "name": "2e-alexa",
+  "version": "0.0.1",
+  "description": "Alexa skill for Next House 2-East.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Michael William Le Nguyen (ttpcodes)",
+  "license": "MIT",
+  "dependencies": {},
+  "devDependencies": {
+    "tslint": "^5.11.0",
+    "tslint-config-standard": "^8.0.1",
+    "typescript": "^3.1.1"
+  }
+}
