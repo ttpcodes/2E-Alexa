@@ -8,8 +8,13 @@
   },
   "author": "Michael William Le Nguyen (ttpcodes)",
   "license": "MIT",
-  "dependencies": {},
+  "dependencies": {
+    "alexa-app": "^4.2.2",
+    "node-fetch": "^2.2.0",
+    "youtube-api": "^2.0.9"
+  },
   "devDependencies": {
+    "@types/node-fetch": "^2.1.2",
     "tslint": "^5.11.0",
     "tslint-config-standard": "^8.0.1",
     "typescript": "^3.1.1"
