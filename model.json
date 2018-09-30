@@ -1,0 +1,90 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "two east",
+      "intents": [
+        {
+          "name": "PlayFromSearch",
+          "slots": [
+            {
+              "name": "Query",
+              "type": "AMAZON.SearchQuery",
+              "samples": [
+                "{Query}"
+              ]
+            }
+          ],
+          "samples": [
+            "Play {Query}"
+          ]
+        },
+        {
+          "name": "BeQuiet",
+          "slots": [],
+          "samples": [
+            "Be quiet"
+          ]
+        },
+        {
+          "name": "AMAZON.YesIntent",
+          "samples": [
+            "Yes"
+          ]
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        }
+      ],
+      "types": []
+    },
+    "dialog": {
+      "intents": [
+        {
+          "name": "PlayFromSearch",
+          "confirmationRequired": false,
+          "prompts": {},
+          "slots": [
+            {
+              "name": "Query",
+              "type": "AMAZON.SearchQuery",
+              "confirmationRequired": false,
+              "elicitationRequired": true,
+              "prompts": {
+                "elicitation": "Elicit.Slot.1"
+              }
+            }
+          ]
+        },
+        {
+          "name": "BeQuiet",
+          "confirmationRequired": true,
+          "prompts": {
+            "confirmation": "Confirm.Intent.1"
+          },
+          "slots": []
+        }
+      ]
+    },
+    "prompts": [
+      {
+        "id": "Elicit.Slot.1",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "What did you want me to play?"
+          }
+        ]
+      },
+      {
+        "id": "Confirm.Intent.1",
+        "variations": [
+          {
+            "type": "PlainText",
+            "value": "Are you sure you want to tell the main lounge to be quiet?"
+          }
+        ]
+      }
+    ]
+  }
+}
