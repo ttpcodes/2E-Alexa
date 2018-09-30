@@ -10,11 +10,13 @@
   "license": "MIT",
   "dependencies": {
     "alexa-app": "^4.2.2",
+    "express": "^4.16.3",
     "mz": "^2.7.0",
     "node-fetch": "^2.2.0",
     "youtube-api": "^2.0.9"
   },
   "devDependencies": {
+    "@types/express": "^4.16.0",
     "@types/mz": "^0.0.32",
     "@types/node-fetch": "^2.1.2",
     "tslint": "^5.11.0",
