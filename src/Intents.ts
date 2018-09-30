@@ -5,47 +5,70 @@ import { join } from 'path'
 import { URLSearchParams } from 'url'
 import { authenticate, search } from 'youtube-api'
 
+import logger from './Main'
+
 // Load authentication token for usage in YouTube searches.
 const PATH = process.env.path || join(__dirname, '..', 'config.json')
 readFile(PATH, 'utf8').then((data) => {
+  logger.debug('Loaded configuration file.')
   let config = null
   try {
     config = JSON.parse(data)
+    logger.debug('Parsed JSON in configuration file.')
   } catch (err) {
-    throw err
+    logger.error('Error while parsing JSON in configuration:' + '\n' + err)
   }
   authenticate({
     key: config.youtube,
     type: 'key'
   })
+  logger.info('Authenticated with youtube-api.')
+}).catch((err) => {
+  logger.error('Error when reading configuration file:' + '\n' + err)
 })
 
 const alexaApp = new Alexa.app('2east')
+logger.debug('Registered Alexa skill.')
 
 alexaApp.intent('AMAZON.YesIntent', {
   utterances: ['Yes']
-}, (request, response) => {
+}, async (request, response) => {
   const session = request.getSession()
+  const video = session.get('url')
+  logger.debug('Read video URL ' + video + 'from session.')
   const body = new URLSearchParams()
-  body.set('video', session.get('url'))
+  body.set('video', video)
+  logger.debug('Created form body.')
   response.say('Okay, playing ' + session.get('title') + '.')
   return fetch('http://a60a24f0.ngrok.io/submit', {
     body,
     method: 'POST'
+  }).then(() => {
+    logger.info('Submitted queue request to remote server.')
+  }).catch((err) => {
+    response.say('Sorry, I had trouble queuing that.')
+    logger.warn('Error on queue request:' + '\n' + err)
   })
 })
+logger.debug('Registered YesIntent.')
 
 alexaApp.intent('BeQuiet', {
   utterances: ['Be quiet']
-}, (_, response) => {
+}, async (_, response) => {
   response.say('Okay, telling the Main Lounge to be quiet.')
-  return fetch('http://a60a24f0.ngrok.io/quiet')
+  return fetch('http://a60a24f0.ngrok.io/quiet').then(() => {
+    logger.info('Submitted Be Quiet request to remote server.')
+  }).catch((err) => {
+    response.say('Sorry, I had trouble doing that.')
+    logger.warn('Error on Be Quiet request:' + '\n' + err)
+  })
 })
+logger.debug('Registered BeQuiet intent.')
 
 alexaApp.intent('PlayFromSearch', {
   slots: { Query: 'AMAZON.SearchQuery' },
   utterances: ['Play {-|Query}']
-}, (request, response) => {
+}, async (request, response) => {
   return new Promise((resolve, reject) => {
     search.list({
       maxResults: 1,
@@ -67,7 +90,14 @@ alexaApp.intent('PlayFromSearch', {
         resolve()
       }
     })
+  }).then(() => {
+    logger.info('Returned search result to Alexa.')
+  }).catch((err) => {
+    response.say('Sorry, I had trouble with the search.')
+    logger.warn('Error on search request:' + '\n' + err)
   })
 })
+logger.debug('Registered PlayFromSearch intent.')
+logger.info('Loaded Alexa skill.')
 
 export default alexaApp
