@@ -1,12 +1,23 @@
 import Alexa from 'alexa-app'
+import { readFile } from 'mz/fs'
 import fetch from 'node-fetch'
+import { join } from 'path'
 import { URLSearchParams } from 'url'
 import { authenticate, search } from 'youtube-api'
 
-// Store authentication token for usage in YouTube searches.
-authenticate({
-  key: '',
-  type: 'key'
+// Load authentication token for usage in YouTube searches.
+const PATH = process.env.path || join(__dirname, '..', 'config.json')
+readFile(PATH, 'utf8').then((data) => {
+  let config = null
+  try {
+    config = JSON.parse(data)
+  } catch (err) {
+    throw err
+  }
+  authenticate({
+    key: config.youtube,
+    type: 'key'
+  })
 })
 
 const alexaApp = new Alexa.app('2east')
