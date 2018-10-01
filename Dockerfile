@@ -1,7 +1,6 @@
 FROM node:8.12-alpine as build
 
-RUN apk add --no-cache git
-RUN git clone https://gitlab.com/ttpcodes/2e-alexa.git /srv
+COPY . /srv
 WORKDIR /srv
 
 RUN yarn
