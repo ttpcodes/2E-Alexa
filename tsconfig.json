@@ -3,7 +3,7 @@
     "baseUrl": ".",
     "esModuleInterop": true,
     "lib": [
-      "dom", "es7"
+      "es7"
     ],
     "module": "commonjs",
     "moduleResolution": "node",

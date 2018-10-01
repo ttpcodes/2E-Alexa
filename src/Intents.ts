@@ -2,7 +2,7 @@ import Alexa from 'alexa-app'
 import { readFile } from 'mz/fs'
 import fetch from 'node-fetch'
 import { join } from 'path'
-import { URLSearchParams } from 'url'
+import { URL, URLSearchParams } from 'url'
 import { authenticate, search } from 'youtube-api'
 
 import logger from './Main'
@@ -33,22 +33,49 @@ logger.debug('Registered Alexa skill.')
 alexaApp.intent('AMAZON.YesIntent', {
   utterances: ['Yes']
 }, async (request, response) => {
+  response.say('Okay, queueing.')
+
   const session = request.getSession()
-  const video = session.get('url')
-  logger.debug('Read video URL ' + video + 'from session.')
-  const body = new URLSearchParams()
-  body.set('video', video)
-  logger.debug('Created form body.')
-  response.say('Okay, playing ' + session.get('title') + '.')
-  return fetch('http://a60a24f0.ngrok.io/submit', {
-    body,
-    method: 'POST'
-  }).then(() => {
-    logger.info('Submitted queue request to remote server.')
-  }).catch((err) => {
-    response.say('Sorry, I had trouble queuing that.')
-    logger.warn('Error on queue request:' + '\n' + err)
+  const title = session.get('title').replace(/\//g, '_')
+  const check = new URL('http://a60a24f0.ngrok.io/search')
+  check.searchParams.append('query', title)
+  const data = await fetch(check.toString(), {
+    method: 'GET'
   })
+  logger.debug('Loaded search results for song title.')
+  const json = await data.json()
+  if ((json as string[]).length) {
+    logger.debug('Found existing video with title.')
+    const file = (json as string[])[0]
+    const existing = new URLSearchParams()
+    existing.set('song', file)
+    logger.debug('Added ' + file + ' to request body.')
+    return fetch('http://a60a24f0.ngrok.io/playsong', {
+      body: existing,
+      method: 'POST'
+    }).then(() => {
+      logger.info('Submitted queue request for existing video to remote server.')
+    }).catch((err) => {
+      response.say('Sorry, I had trouble queueing that.')
+      logger.warn('Error on queue request:' + '\n' + err)
+    })
+  } else {
+    logger.debug('Did not find existing video.')
+    const video = session.get('url')
+    logger.debug('Read video URL ' + video + 'from session.')
+    const body = new URLSearchParams()
+    body.set('video', video)
+    logger.debug('Created form body.')
+    return fetch('http://a60a24f0.ngrok.io/submit', {
+      body,
+      method: 'POST'
+    }).then(() => {
+      logger.info('Submitted queue request for new video to remote server.')
+    }).catch((err) => {
+      response.say('Sorry, I had trouble queueing that.')
+      logger.warn('Error on queue request:' + '\n' + err)
+    })
+  }
 })
 logger.debug('Registered YesIntent.')
 
